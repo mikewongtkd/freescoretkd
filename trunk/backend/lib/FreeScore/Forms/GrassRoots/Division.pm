@@ -256,12 +256,12 @@ sub current_bracket {
 	my $self = shift; return undef unless exists $self->{ brackets } && defined $self->{ brackets };
 	my $i    = $self->{ current };
 	my $j    = 0;
-	my $k    = int( @{$self->{ brackets }[ $j ]});
+	my $k    = int( @{$self->{ brackets }[ $j ] // []});
 
-	while( $i >= $k ) {
+	while( $i >= $k && $j < $#{ $self->{ brackets }}) {
 		$i -= $k;
 		$j++;
-		$k = int( @{$self->{ brackets }[ $j ]});
+		$k = int( @{$self->{ brackets }[ $j ] // []});
 	}
 
 	return $self->{ brackets }[ $j ][ $i ];
@@ -273,12 +273,12 @@ sub current_round {
 	my $self = shift; return undef unless exists $self->{ brackets } && defined $self->{ brackets };
 	my $i    = $self->{ current };
 	my $j    = 0;
-	my $k    = int( @{$self->{ brackets }[ $j ]});
+	my $k    = int( @{$self->{ brackets }[ $j ] // []});
 
-	while( $i >= $k ) {
+	while( $i >= $k && $j < $#{ $self->{ brackets }}) {
 		$i -= $k;
 		$j++;
-		$k = int( @{$self->{ brackets }[ $j ]});
+		$k = int( @{$self->{ brackets }[ $j ] // []});
 	}
 
 	return $self->{ brackets }[ $j ];
