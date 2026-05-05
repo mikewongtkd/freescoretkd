@@ -948,7 +948,7 @@ sub autopilot {
 	my $division = $progress->current();
 	my $cycle    = $division->{ autodisplay } || 2;
 
-	request->{ type } = 'autopilot';
+	$request->{ type } = 'autopilot';
 
 	# ===== ENGAGE AUTOPILOT
 	try {
