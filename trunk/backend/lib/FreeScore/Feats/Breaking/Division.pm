@@ -187,10 +187,10 @@ sub record_decision {
 # ============================================================
 	my $self     = shift;
 	my $decision = shift;
-	my $n      = int( @{ $self->{ athletes }});
+	my $n        = int( @{ $self->{ athletes }});
+	my $i        = $self->{ current };
 
-	return 0 if( $id < 0 || $id > $n );
-	my $i       = $self->{ current };
+	return 0 if( $i < 0 || $i >= $n );
 	my $athlete = $self->{ athletes }[ $i ];
 
 	return 0 unless $athlete;
