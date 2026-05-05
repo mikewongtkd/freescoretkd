@@ -17,7 +17,7 @@ sub init {
 	if( defined $ring ) { 
 		my $divisions = undef;
 		if( $ring =~ /staging/i ) {
-			$self->{ path } = sprintf( "%s/%s/%s/staging", $FreeScore::PATH, $tournament, $SUBDIR, $ring ); 
+			$self->{ path } = sprintf( "%s/%s/%s/staging", $FreeScore::PATH, $tournament, $SUBDIR );
 			mkdir $self->{ path } unless -e $self->{ path };
 			$divisions = $self->load_ring( $ring ); # reads $self->{ divisions } from ring progress file
 
