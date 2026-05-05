@@ -56,7 +56,8 @@ websocket '/para/:tournament/:ring/:role/:id' => sub {
 	# ----------------------------------------
 	$self->on( message => sub {
 		my $self    = shift;
-		my $request = $json->decode( shift );
+		my $request = eval { $json->decode( shift ) };
+		if( $@ ) { $c->{ device }->send( { json => { error => "Malformed JSON request" }}); return; }
 
 		# ===== GET RELEVANT COOKIES
 		my $value = $self->cookie( 'judge' );

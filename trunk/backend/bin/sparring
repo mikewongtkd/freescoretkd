@@ -48,7 +48,8 @@ websocket '/sparring/:tournament/:ring' => sub {
 	# ----------------------------------------
 	$self->on( message => sub {
 		my $self    = shift;
-		my $request = $json->decode( shift );
+		my $request = eval { $json->decode( shift ) };
+		if( $@ ) { $c->{ device }->send( { json => { error => "Malformed JSON request" }}); return; }
 
 		$request->{ tournament } = $tournament;
 

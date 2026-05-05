@@ -46,7 +46,8 @@ websocket '/breaking/:tournament/:ring/:role' => sub {
 	# ----------------------------------------
 	$self->on( message => sub {
 		my $self    = shift;
-		my $request = $json->decode( shift );
+		my $request = eval { $json->decode( shift ) };
+		if( $@ ) { $client->send( { json => { error => "Malformed JSON request" }}); return; }
 
 		# ===== REJECT UNAUTHORIZED USERS
 		my $security = $config->security();
