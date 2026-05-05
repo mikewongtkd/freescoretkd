@@ -505,10 +505,10 @@ sub record_tiebreaker {
 	my $judge  = shift;
 	my $score  = shift;
 	my $judges = $self->{ judges };
-	my $tie    = $self->{ tied }[ 0 ];
+	my $tie    = $self->{ tied } && @{ $self->{ tied }} ? $self->{ tied }[ 0 ] : undef;
 
 	# Two-way tie
-	if( (int( @{ $tie->{ tied }}) == 2) && ($score eq 'red' || $score eq 'blue')) {
+	if( defined $tie && (int( @{ $tie->{ tied }}) == 2) && ($score eq 'red' || $score eq 'blue')) {
 		my $blue = $self->{ athletes }[ $tie->{ tied }[ 0 ] ];
 		my $red  = $self->{ athletes }[ $tie->{ tied }[ 1 ] ];
 		if      ( $score eq 'blue' ) {
