@@ -1,7 +1,7 @@
 <?php 
 include( "../../include/php/config.php" ); 
 include( "../../session.php" ); 
-$ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : (isset( $_COOKIE[ 'ring' ]) ? $_COOKIE[ 'ring' ] : null);
+$ring = max( 1, intval( isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : (isset( $_COOKIE[ 'ring' ]) ? $_COOKIE[ 'ring' ] : 1)));
 $url  = $config->websocket( 'breaking', $ring, 'display' );
 ?>
 <html>

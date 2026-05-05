@@ -2,7 +2,7 @@
 include( "../../../include/php/config.php" ); 
 include( "../../../session.php" ); 
 include( "../include/php/breaking.php" );
-$ring   = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : (isset( $_COOKIE[ 'ring' ]) ? $_COOKIE[ 'ring' ] : null);
+$ring   = max( 1, intval( isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : (isset( $_COOKIE[ 'ring' ]) ? $_COOKIE[ 'ring' ] : 1)));
 $divid  = isset( $_GET[ 'divid' ]) ? $_GET[ 'divid' ] : (isset( $_COOKIE[ 'divid' ]) ? $_COOKIE[ 'divid' ] : null);
 $format = isset( $_GET[ 'format' ]) ? $_GET[ 'format' ] : 'html';
 ?>

@@ -5,7 +5,7 @@
 	setcookie( 'ring',  '', $an_hour_ago, '/' );
 	include( "../../include/php/config.php" ); 
 
-	$ring = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : 1;
+	$ring = max( 1, intval( isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : 1 ));
 	$t    = json_decode( $tournament );
 ?>
 <html>

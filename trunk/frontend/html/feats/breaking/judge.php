@@ -1,6 +1,6 @@
 <?php 
-  $ring  = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : $_COOKIE[ 'ring' ];
-  $judge = isset( $_GET[ 'judge' ]) ? $_GET[ 'judge' ] : $_COOKIE[ 'judge' ];
+  $ring  = max( 1, intval( isset( $_GET[ 'ring' ])  ? $_GET[ 'ring' ]  : $_COOKIE[ 'ring' ]  ?? 1 ));
+  $judge = max( 0, intval( isset( $_GET[ 'judge' ]) ? $_GET[ 'judge' ] : $_COOKIE[ 'judge' ] ?? 0 ));
   include( "../../include/php/config.php" ); 
   include( "../../session.php" ); 
 
