@@ -167,7 +167,14 @@ post '/:tournament/:ring/:divid' => sub {
 	my $ring       = $self->param( 'ring' );
 	my $divid      = $self->param( 'divid' );
 	my $json       = new JSON::XS();
-	my $data       = $json->decode( $self->req->body());
+
+	unless( $tournament =~ /^[\w-]+$/ && $divid =~ /^p\d+[a-z]?$/ ) {
+		$self->res->headers->header( 'Access-Control-Allow-Origin' => $config->host() );
+		$self->render( json => { error => 'Invalid tournament or division ID' }, status => 400 );
+		return;
+	}
+
+	my $data = $json->decode( $self->req->body());
 	my $progress   = new FreeScore::Feats::Breaking( $tournament, $ring );
 	my $division   = $progress->find( $divid );
 

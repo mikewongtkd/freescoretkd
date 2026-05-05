@@ -52,6 +52,7 @@ sub create_division {
 # ============================================================
 	my $self     = shift;
 	my $divid    = shift;
+	die "Invalid division ID '$divid'" unless $divid =~ /^p\d+[a-z]?$/;
 	my $division = new FreeScore::Forms::GrassRoots::Division( $self->{ path }, $divid );
 
 	$division->{ file } = "$self->{ path }/div.$divid.txt";
