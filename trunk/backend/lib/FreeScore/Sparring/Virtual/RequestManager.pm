@@ -452,7 +452,7 @@ sub handle_division_pool_judge_ready {
 	try {
 		my $size     = $request->{ size };          # Required parameter
 		my $judge    = $request->{ judge };         # Required parameter
-		my $timeout  = $timer->{ pause }{ ready } || $request->{ timeout } || 10;
+		my $timeout  = $request->{ timeout } || 10;
 		my $response = $division->pool_judge_ready( $size, $judge );
 
 		print STDERR "    " . int( @{ $response->{ responded }}) . " out of $size ($response->{ want } wanted)\n" if $DEBUG;
