@@ -420,8 +420,9 @@ sub judge_deduction_consensus {
 	my $n      = $self->{ judges };
 
 	my @deductions = sort { $a <=> $b } map { int( $_ ) } grep { defined } map { $_->{ deductions }{ gamjeom } } @$scores;
+	return 0 unless @deductions;
 	my $i = int((int( @deductions ) + 1)/2) - 1; # At least half of the judges agree
-	return $counts[ $i ];
+	return $deductions[ $i ];
 }
 
 # ============================================================
