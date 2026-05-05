@@ -9,7 +9,7 @@ class Score {
 	}
 
 	drop( category ) {
-		if( category != 'technical' || category != 'presentation' ) { throw Error( `Unknown category ${category}` ); }
+		if( category != 'technical' && category != 'presentation' ) { throw Error( `Unknown category ${category}` ); }
 		this.dropped[ category ] = true;
 	}
 
