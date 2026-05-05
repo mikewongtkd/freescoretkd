@@ -114,6 +114,8 @@ sub handle_division_inspection {
 	my $client        = $self->{ _client };
 	my ($divid, $aid) = split /\|/, $request->{ athlete };
 	my $boards        = int( $request->{ boards });
+	$boards = 0  if $boards < 0;
+	$boards = 15 if $boards > 15;
 	my $division      = $progress->find( $divid );
 	my $user          = $client->description();
 
