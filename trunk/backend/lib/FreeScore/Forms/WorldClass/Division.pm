@@ -5,6 +5,7 @@ use FreeScore::Forms::WorldClass::Method;
 use FreeScore::Forms::WorldClass::Division::Round;
 use FreeScore::Forms::WorldClass::Division::Round::Score;
 use List::Util qw( all any none first min shuffle reduce );
+use Scalar::Util qw( looks_like_number );
 use List::MoreUtils qw( first_index );
 use Math::Round qw( round );
 use POSIX qw( ceil );
@@ -501,7 +502,11 @@ sub read {
 			if    ( $judge =~ /^[jr]/ ) {
 				$judge =~ s/j//; $judge = $judge =~ /^r/ ? 0 : int( $judge ); die "Division Configuration Error: Invalid judge index '$judge' $!" unless $judge >= 0;
 				my ($major, $minor, $rhythm, $power, $ki) = @score_criteria;
-				$major ||= 0; $minor ||= 0; $rhythm ||= 0; $power ||= 0; $ki ||= 0;
+				$major  = looks_like_number( $major  ) ? $major  + 0 : 0;
+				$minor  = looks_like_number( $minor  ) ? $minor  + 0 : 0;
+				$rhythm = looks_like_number( $rhythm ) ? $rhythm + 0 : 0;
+				$power  = looks_like_number( $power  ) ? $power  + 0 : 0;
+				$ki     = looks_like_number( $ki     ) ? $ki     + 0 : 0;
 				die "Database Integrity Error: score recorded for $athlete->{ name } for $score_round round does not match context $round round\n" if $round ne $score_round;
 
 				next unless( $major || $minor || $rhythm || $power || $ki );
