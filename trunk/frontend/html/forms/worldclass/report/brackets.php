@@ -100,11 +100,11 @@ h2, h3 {
 						let id = `#${division.name()}-${col}-${row}`;
 						if( defined( aid )) {
 							let athlete  = division.athlete( aid );
-							let seed     = Math.floor( athlete.info( 'seed' ));
+							let seed     = athlete.info( 'seed' ) ? '(' + Math.floor( athlete.info( 'seed' )) + ')' : '';
 							let form     = athlete.score( division.current.roundId()).decision.awarded();
 							let decision = form?.decision?.awarded();
 
-							seed = seed == 0 ? '' : ` <span class="seed">(${seed})</span>`;
+							seed = seed == 0 ? '' : ` <span class="seed">${seed}</span>`;
 
 							if( decision ) {
 								table.find( id ).html( `<s>${athlete.name()}</s>${seed} (${decision.code})` );
@@ -180,11 +180,13 @@ h2, h3 {
 					table : division => {
 						if( <?= $divid === null ? 'false' : "division.name != '{$divid}'" ?> ) { return; }
 						if( <?= $ring  == 'staging' || $ring === null ? 'false' : "division.ring != {$ring}" ?> ) { return; }
-						let summary = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>\n<div><div class="ring"><h4>Ring ${division.ring}</h4></div><div class="staging">Report Time: ${division.time?.call}<br>Scheduled Start Time: ${division.time?.start}</div></div>`;
-						let tables  = [];
-						let n       = division.athletes.length;
-						let rounds  = division.rounds.map( code => { return { code, name: FreeScore.round.name[ code ]}; });
-						let letter  = division.description.match( /group/i ) ? division.name.at( -1 ).toUpperCase() : '';
+						let calltime  = division?.time?.call ? `Report Time: ${division.time?.call}` : '';
+						let starttime = division?.time?.start ? `Scheduled Start Time: ${division.time?.start}` : '';
+						let summary   = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>\n<div><div class="ring"><h4>Ring ${division.ring}</h4></div><div class="staging">${calltime}<br>${starttime}</div></div>`;
+						let tables    = [];
+						let n         = division.athletes.length;
+						let rounds    = division.rounds.map( code => { return { code, name: FreeScore.round.name[ code ]}; });
+						let letter    = division.description.match( /group/i ) ? division.name.at( -1 ).toUpperCase() : '';
 						
 						// ============================================================
 						// SINGLE ELIMINATION BRACKET TREE

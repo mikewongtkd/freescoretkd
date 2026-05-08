@@ -13,7 +13,7 @@ sub init {
 	my $tournament = shift;
 	my $ring       = shift;
 
-	if( defined $ring ) { 
+	if( $ring =~ /^(?:ring)?\d+$/ ) {
 		$self->{ path } = $ring eq 'staging' ? sprintf( "%s/%s/%s/%s", $FreeScore::PATH, $tournament, $SUBDIR, $ring ) : sprintf( "%s/%s/%s/ring%02d", $FreeScore::PATH, $tournament, $SUBDIR, $ring ); 
 		my $divisions = $self->load_ring(); # reads $self->{ divisions } from ring progress file
 
@@ -46,7 +46,8 @@ sub init {
 		$self->{ current } = $current;
 
 		# ===== RESTORE THE CURRENT PATH
-		$self->{ path } = sprintf( "%s/%s/%s", $FreeScore::PATH, $tournament, $SUBDIR ); 
+		$ring = 'staging';
+		$self->{ path } = sprintf( "%s/%s/%s/%s", $FreeScore::PATH, $tournament, $SUBDIR, $ring ); 
 	}
 }
 

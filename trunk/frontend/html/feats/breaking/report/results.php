@@ -2,8 +2,8 @@
 include( "../../../include/php/config.php" ); 
 include( "../../../session.php" ); 
 include( "../include/php/breaking.php" );
-$ring   = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : (isset( $_COOKIE[ 'ring' ]) ? $_COOKIE[ 'ring' ] : null);
-$divid  = isset( $_GET[ 'divid' ]) ? $_GET[ 'divid' ] : (isset( $_COOKIE[ 'divid' ]) ? $_COOKIE[ 'divid' ] : null);
+$ring   = isset( $_GET[ 'ring' ]) ? $_GET[ 'ring' ] : 'staging';
+$divid  = isset( $_GET[ 'divid' ]) ? $_GET[ 'divid' ] : null;
 $format = isset( $_GET[ 'format' ]) ? $_GET[ 'format' ] : 'html';
 $url    = $config->websocket( 'breaking', $ring, 'report' );
 ?>
@@ -15,8 +15,10 @@ $url    = $config->websocket( 'breaking', $ring, 'report' );
     <script src="../../../include/jquery/js/jquery.js"></script>
     <script src="../../../include/bootstrap/js/bootstrap.min.js"></script>
     <script src="../../../include/js/freescore.js"></script>
+    <script src="../../../include/js/uuid.js"></script>
     <script src="../../../include/js/websocket.js"></script>
     <script src="../../../include/js/sound.js"></script>
+    <script src="../../../include/js/event.js"></script>
     <script src="../../../include/js/app.js"></script>
     <script src="../include/js/score.js"></script>
     <script src="../include/js/athlete.js"></script>
@@ -43,12 +45,12 @@ $url    = $config->websocket( 'breaking', $ring, 'report' );
     <script>
       var app = new FreeScore.App();
       app.on.connect( '<?= $url ?>' ).read.ring();
-
-	  app.ping.off();
+      app.ping.off();
 
       app.network.on
         .heard( 'ring' )
-        .command( 'read' ).respond( update => {
+        .command( 'update' ).respond( update => {
+          console.log( 'HELLO WORLD' ); // MW
 <?php if( isset( $divid )): ?>
           let found = update.ring.divisions.find( division => division.name == '<?= $divid ?>' );
           if( ! found ) { return; }
@@ -101,7 +103,9 @@ $url    = $config->websocket( 'breaking', $ring, 'report' );
         .heard( 'users' )
         .command( 'update' ).pass();
 
+      setTimeout(() => { app.network.send({ type: 'ring', action: 'read' }); }, 500 );
+
     </script>
   </body>
 </html>
-<!-- vim: set ts=2 sw=2 expandtab -->
+<!-- vim: set ts=2 sw=2 expandtab : -->
