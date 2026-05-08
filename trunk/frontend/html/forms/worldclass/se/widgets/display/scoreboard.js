@@ -144,8 +144,8 @@ FreeScore.Widget.SEScoreboard = class FSWidgetSEScoreboard extends FreeScore.Wid
 								display.empty();
 								if( judge.score.is.complete() && (match.is.contested || div.athletes().length <= 2 )) { 
 									let ignore = {
-										acc : judge.score.ignore.accuracy() ? 'ignore' : '',
-										pre : judge.score.ignore.presentation() ? 'ignore' : ''
+										acc : tdc.judge.length > 3 && judge.score.ignore.accuracy() ? 'ignore' : '',
+										pre : tdc.judge.length > 3 && judge.score.ignore.presentation() ? 'ignore' : ''
 									};
 									display.html( `<div class="jid">${ i == 0 ? 'R' : 'J' + (i)}</div><div class="accuracy score ${ignore.acc}">${judge.score.accuracy()}</div><div class="presentation score ${ignore.pre}">${judge.score.presentation()}</div>` ); 
 								}
