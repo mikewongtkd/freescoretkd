@@ -180,6 +180,7 @@ h2, h3 {
 					table : division => {
 						if( <?= $divid === null ? 'false' : "division.name != '{$divid}'" ?> ) { return; }
 						if( <?= $ring  == 'staging' || $ring === null ? 'false' : "division.ring != {$ring}" ?> ) { return; }
+						if( division.ring == 'staging' ) { return; }
 						let calltime  = division?.time?.call ? `Report Time: ${division.time?.call}` : '';
 						let starttime = division?.time?.start ? `Scheduled Start Time: ${division.time?.start}` : '';
 						let summary   = `<h3>${division.name.toUpperCase()}: ${division.description}</h3>\n<div><div class="ring"><h4>Ring ${division.ring}</h4></div><div class="staging">${calltime}<br>${starttime}</div></div>`;
