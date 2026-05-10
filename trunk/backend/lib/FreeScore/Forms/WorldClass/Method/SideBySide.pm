@@ -159,6 +159,7 @@ sub autopilot_steps {
 	push @steps, $step->{ show }{ leaderboard } if( $last->{ round } && $matches->current->complete() && ! $bye); # Display the leaderboard when the last match of the division is completed
 	push @steps, $step->{ go }{ next } unless( $last->{ round } && $last->{ form });
 	push @steps, $step->{ show }{ matches } unless( $last->{ round } && $last->{ form });
+	push @steps, $step->{ show }{ score };
 
 	return @steps;
 }
