@@ -100,11 +100,9 @@ h2, h3 {
 						let id = `#${division.name()}-${col}-${row}`;
 						if( defined( aid )) {
 							let athlete  = division.athlete( aid );
-							let seed     = athlete.info( 'seed' ) ? '(' + Math.floor( athlete.info( 'seed' )) + ')' : '';
+							let seed     = athlete.info( 'seed' ) ? '<span class="seed">(' + Math.floor( athlete.info( 'seed' )) + ')<span class="seed">' : '';
 							let form     = athlete.score( division.current.roundId()).decision.awarded();
 							let decision = form?.decision?.awarded();
-
-							seed = seed == 0 ? '' : ` <span class="seed">${seed}</span>`;
 
 							if( decision ) {
 								table.find( id ).html( `<s>${athlete.name()}</s>${seed} (${decision.code})` );
