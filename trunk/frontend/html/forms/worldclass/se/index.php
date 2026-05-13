@@ -98,6 +98,27 @@
 			// ===== NETWORK CONNECT
 			app.on.connect( '<?= $url ?>' ).read.division();
 
+			app.state.reconnect = { attempt: 0, interval: null, delay: 30000 /* 30 seconds */ };
+			app.state.reconnect.later = () => {
+				if( app.state.reconnect.interval !== null ) app.state.reconnect.cancel();
+				app.state.reconnect.interval = setInterval(() => {
+					if( app.state.reconnect.attempt >= 3 ) {
+						alertify.error( `Failed to connect to server. Call for &quot;Referee&quot; to request help from a FreeScore technician.` );
+						app.state.reconnect.cancel();
+						return;
+					}
+					app.state.reconnect.attempt++;
+					let request = { type: 'division', action: 'read' };
+					app.network.on.reconnect().send( request );
+
+				}, app.state.reconnect.delay );
+			};
+			app.state.reconnect.cancel = () => {
+				if( app.state.reconnect.interval !== null ) clearInterval( app.state.reconnect.interval );
+				app.state.reconnect.attempt  = 0;
+				app.state.reconnect.interval = null;
+			}
+
 			// ===== PAN & ZOOM FUNCTION
 			app.state.display  = { x: 0, y: 0, zoom: 1.0 };
 			app.display.panzoom = delta => {
@@ -192,6 +213,7 @@
 							alertify.error( `Unknown division state: '${state}'; defaulting to <b>score</b>` );
 							state = 'score'; 
 						}
+						app.state.reconnect.later();
 						app.page.transition( state );
 					})
 				// ============================================================
@@ -207,6 +229,7 @@
 							alertify.error( `Unknown division state: '${state}'; defaulting to <b>score</b>` );
 							state = 'score'; 
 						}
+						app.state.reconnect.later();
 						app.page.transition( state );
 					})
 		</script>
