@@ -21,7 +21,8 @@ sub init_client_server {
 # ============================================================
 	$self = shift;
 	$self->{ client } = {
-		pong          => \&handle_client_pong
+		pong          => \&handle_client_pong,
+		report        => \&handle_client_report
 	};
 	$self->{ server } = {
 		stop_ping     => \&handle_server_stop_ping
@@ -149,6 +150,7 @@ sub handle_client_pong {
 	my $progress  = shift;
 	my $group     = shift;
 	my $client    = $self->{ _client };
+	my $ring      = $client->ring();
 
 	my $ping      = $request->{ server }{ ping };
 	my $pong      = $request->{ client }{ pong };
@@ -158,6 +160,23 @@ sub handle_client_pong {
 	my $status    = $client->status();
 	my $request   = { type => 'users', action => 'update', ring => $ring, status => $status };
 	$self->broadcast_updated_users( $request, $progress, $group );
+}
+
+# ============================================================
+sub handle_client_report {
+# ============================================================
+	my $self      = shift;
+	my $request   = shift;
+	my $progress  = shift;
+	my $group     = shift;
+	my $client    = $self->{ _client };
+	my $ring      = $client->ring();
+
+	my $registry  = $client->registry();
+	my $now       = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
+	my $request   = { type => 'users', action => 'report', ring => $ring };
+	my $response  = { type => 'users', action => 'update', time => $now, request => $request, report => $report };
+	$client->send( { json => $response });
 }
 
 # ============================================================

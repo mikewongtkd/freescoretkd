@@ -25,7 +25,7 @@ sub init {
 	my $self   = shift;
 	my $client = shift;
 
-	$self->{ pings }       = {};
+	$self->{ sent }        = {};
 	$self->{ client }      = $client;
 	$client->{ timedelta } = 0;
 	$self->{ timestats }   = new Statistics::Descriptive::Full();
@@ -46,7 +46,7 @@ sub changed {
 sub count {
 # ============================================================
 	my $self = shift;
-	return int( keys %{ $self->{ pings }});
+	return int( keys %{ $self->{ sent }});
 }
 
 # ============================================================
@@ -98,7 +98,7 @@ sub health {
 sub last {
 # ============================================================
 	my $self = shift;
-	my @keys = sort keys %{$self->{ pings }};
+	my @keys = sort keys %{$self->{ sent }};
 	return shift @keys;
 }
 
@@ -117,7 +117,7 @@ sub pong {
 	my $client_ts = shift;
 	my $client    = $self->{ client };
 
-	delete $self->{ pings }{ $server_ts } if( exists $self->{ pings }{ $server_ts });
+	delete $self->{ sent }{ $server_ts } if( exists $self->{ sent }{ $server_ts });
 
 	try {
 		my $date1     = new Date::Manip::Date( $server_ts );
@@ -148,15 +148,15 @@ sub pong {
 # ============================================================
 sub quit {
 # ============================================================
+# Stop pinging client and close the websocket connection from the server-side
+# ------------------------------------------------------------
 	my $self   = shift;
-	my $client = $self->{ client };
-	my $id     = $self->{ id };
+	my $ws     = $self->{ client }{ websocket };
 
-	return unless $id;
+	$self->stop();
 
-	Mojo::IOLoop->remove( $id );
-	delete $self->{ id };
-	delete $client->{ ping };
+	return unless defined $ws;
+	$ws->finish();
 }
 
 # ============================================================
@@ -171,11 +171,11 @@ sub start {
 
 	$self->{ id } = Mojo::IOLoop->recurring( $interval => sub ( $ioloop ) {
 		my $now = (new Date::Manip::Date( 'now GMT' ))->printf( '%O' ) . 'Z';
-		$self->{ pings }{ $now } = 1;
+		$self->{ sent }{ $now } = 1;
 
 		if( $self->count() >= 25 ) {
 			my $last = $self->last();
-			delete $self->{ pings }{ $last };
+			delete $self->{ sent }{ $last };
 		}
 
 		my $ping = { type => 'server', action => 'ping', ring => $client->ring(), cid => $client->cid(), gid => $client->gid(), role => $client->role(), server => { timestamp => $now }};
@@ -186,8 +186,10 @@ sub start {
 # ============================================================
 sub stop {
 # ============================================================
-	my $self   = shift;
-	my $id     = $self->{ id };
+# Stop pinging client (do not close the websocket)
+# ------------------------------------------------------------
+	my $self = shift;
+	my $id   = $self->{ id };
 
 	return unless $id;
 

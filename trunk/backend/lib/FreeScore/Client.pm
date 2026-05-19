@@ -91,7 +91,11 @@ sub json {
 	my $json  = new JSON::XS();
 
 	# Remove nested objects
-	delete $clone->{ $_ } foreach qw( device ping websocket );
+	delete $clone->{ $_ } foreach qw( device websocket );
+	my $group = $clone->{ group };
+	$clone->{ group } = $group->{ id };
+	my $ping = $clone->{ ping };
+	$clone->{ ping } = [ sort keys %{$ping->{ sent }}];
 
 	return $json->canonical->encode( $clone );
 }
@@ -138,6 +142,7 @@ sub status {
 sub device     { my $self = shift; return $self->{ device };     }
 sub gid        { my $self = shift; return $self->{ gid };        }
 sub id         { my $self = shift; return $self->{ id };         }
+sub registry   { my $self = shift; return $self->{ registry };   }
 sub ring       { my $self = shift; return $self->{ ring };       }
 sub role       { my $self = shift; return $self->{ role };       }
 sub sessid     { my $self = shift; return $self->{ sessid };     }
